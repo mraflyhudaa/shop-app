@@ -10,6 +10,7 @@ import {
 import React, {useLayoutEffect, useEffect, useState, useCallback} from 'react';
 import {useSelector, useDispatch} from 'react-redux';
 import {HeaderButtons, Item} from 'react-navigation-header-buttons';
+import {useFocusEffect} from '@react-navigation/native';
 
 import ProductItem from '../../components/shop/ProductItem';
 import * as cartActions from '../../store/actions/cart';
@@ -25,6 +26,7 @@ const ProductOverviewScreen = ({navigation}) => {
   const dispatch = useDispatch();
 
   const loadProducts = useCallback(async () => {
+    console.log('LOAD PRODUCTS');
     setError(null);
     setIsLoading(true);
     try {
@@ -38,6 +40,11 @@ const ProductOverviewScreen = ({navigation}) => {
   useEffect(() => {
     loadProducts();
   }, [dispatch, loadProducts]);
+
+  useEffect(() => {
+    const focusSub = navigation.addListener('focus', loadProducts);
+    return focusSub;
+  }, [navigation, loadProducts]);
 
   const selectItemHandler = (id, title) => {
     navigation.navigate('ProductDetail', {
