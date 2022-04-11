@@ -1,61 +1,90 @@
-import {StyleSheet, Text, Platform, FlatList} from "react-native";
-import React, {useLayoutEffect} from "react";
-import {useSelector} from "react-redux";
-import {HeaderButtons, Item} from "react-navigation-header-buttons";
+import {
+  StyleSheet,
+  Text,
+  ActivityIndicator,
+  View,
+  Platform,
+  FlatList,
+} from 'react-native';
+import React, {useLayoutEffect, useEffect, useState} from 'react';
+import {useSelector, useDispatch} from 'react-redux';
+import {HeaderButtons, Item} from 'react-navigation-header-buttons';
 
-import HeaderButton from "../../components/UI/HeaderButton";
-import OrderItem from "../../components/shop/OrderItem";
+import HeaderButton from '../../components/UI/HeaderButton';
+import OrderItem from '../../components/shop/OrderItem';
+import * as ordersActions from '../../store/actions/orders';
+import Colors from '../../constants/Colors';
 
 const OrdersScreen = ({navigation}) => {
-    const orders = useSelector((state) => state.orders.orders);
+  const [isLoading, setIsLoading] = useState(false);
 
-    useLayoutEffect(() => {
-        navigation.setOptions({
-            headerTitle: "Your Orders",
-            headerLeft: () => (
-                <HeaderButtons HeaderButtonComponent={HeaderButton}>
-                    <Item
-                        title="Menu"
-                        iconName={
-                            Platform.OS === "android" ? "md-menu" : "ios-menu"
-                        }
-                        onPress={() => {
-                            navigation.toggleDrawer();
-                        }}
-                    />
-                </HeaderButtons>
-            ),
-            headerRight: () => (
-                <HeaderButtons HeaderButtonComponent={HeaderButton}>
-                    <Item
-                        title="Cart"
-                        iconName={
-                            Platform.OS === "android" ? "md-cart" : "ios-cart"
-                        }
-                        onPress={() => {
-                            navigation.navigate("Cart");
-                        }}
-                    />
-                </HeaderButtons>
-            ),
-        });
-    }, [navigation]);
+  const orders = useSelector((state) => state.orders.orders);
+  const dispatch = useDispatch();
 
+  useEffect(() => {
+    setIsLoading(true);
+    dispatch(ordersActions.fetchOrders()).then(() => {
+      setIsLoading(false);
+    });
+  }, [dispatch]);
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerTitle: 'Your Orders',
+      headerLeft: () => (
+        <HeaderButtons HeaderButtonComponent={HeaderButton}>
+          <Item
+            title='Menu'
+            iconName={Platform.OS === 'android' ? 'md-menu' : 'ios-menu'}
+            onPress={() => {
+              navigation.toggleDrawer();
+            }}
+          />
+        </HeaderButtons>
+      ),
+      headerRight: () => (
+        <HeaderButtons HeaderButtonComponent={HeaderButton}>
+          <Item
+            title='Cart'
+            iconName={Platform.OS === 'android' ? 'md-cart' : 'ios-cart'}
+            onPress={() => {
+              navigation.navigate('Cart');
+            }}
+          />
+        </HeaderButtons>
+      ),
+    });
+  }, [navigation]);
+
+  if (isLoading) {
     return (
-        <FlatList
-            data={orders}
-            keyExtractor={(item) => item.id}
-            renderItem={(itemData) => (
-                <OrderItem
-                    amount={itemData.item.totalAmount}
-                    date={itemData.item.readableDate}
-                    items={itemData.item.items}
-                />
-            )}
-        />
+      <View style={styles.centered}>
+        <ActivityIndicator size={'large'} color={Colors.primary} />
+      </View>
     );
+  }
+
+  return (
+    <FlatList
+      data={orders}
+      keyExtractor={(item) => item.id}
+      renderItem={(itemData) => (
+        <OrderItem
+          amount={itemData.item.totalAmount}
+          date={itemData.item.readableDate}
+          items={itemData.item.items}
+        />
+      )}
+    />
+  );
 };
 
 export default OrdersScreen;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  centered: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});
