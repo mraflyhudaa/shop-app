@@ -1,5 +1,5 @@
-import {StyleSheet, Text, View, TextInput} from 'react-native';
 import React, {useReducer, useEffect} from 'react';
+import {View, Text, TextInput, StyleSheet} from 'react-native';
 
 const INPUT_CHANGE = 'INPUT_CHANGE';
 const INPUT_BLUR = 'INPUT_BLUR';
@@ -35,7 +35,7 @@ const Input = (props) => {
     if (inputState.touched) {
       onInputChange(id, inputState.value, inputState.isValid);
     }
-  }, [inputState, onInputChange]);
+  }, [inputState, onInputChange, id]);
 
   const textChangeHandler = (text) => {
     const emailRegex =
@@ -69,7 +69,7 @@ const Input = (props) => {
       <TextInput
         {...props}
         style={styles.input}
-        value={inputState.value.title}
+        value={inputState.value}
         onChangeText={textChangeHandler}
         onBlur={lostFocusHandler}
       />
@@ -81,8 +81,6 @@ const Input = (props) => {
     </View>
   );
 };
-
-export default Input;
 
 const styles = StyleSheet.create({
   formControl: {
@@ -107,3 +105,5 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
 });
+
+export default Input;
