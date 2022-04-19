@@ -6,7 +6,9 @@ export const UPDATE_PRODUCT = 'UPDATE_PRODUCT';
 export const SET_PRODUCTS = 'SET_PRODUCTS';
 
 export const fetchProducts = () => {
-  return async (dispatch) => {
+  return async (dispatch, getState) => {
+    const userId = getState().auth.userId;
+
     // any async code you want!
     try {
       const response = await fetch(
@@ -24,7 +26,7 @@ export const fetchProducts = () => {
         loadedProdutcs.push(
           new Product(
             key,
-            'u1',
+            resData[key].ownerId,
             resData[key].title,
             resData[key].imageUrl,
             resData[key].description,
@@ -34,7 +36,11 @@ export const fetchProducts = () => {
       }
 
       // console.log(resData);
-      dispatch({type: SET_PRODUCTS, products: loadedProdutcs});
+      dispatch({
+        type: SET_PRODUCTS,
+        products: loadedProdutcs,
+        userProducts: loadedProdutcs.filter((prod) => prod.ownerId === userId),
+      });
     } catch (error) {
       // send to custom analytics server
       throw error;
@@ -43,9 +49,10 @@ export const fetchProducts = () => {
 };
 
 export const deleteProduct = (productId) => {
-  return async (dispatch) => {
+  return async (dispatch, getState) => {
+    const token = getState().auth.token;
     const response = await fetch(
-      `https://rn-shop-guide-fb159-default-rtdb.asia-southeast1.firebasedatabase.app/products/${productId}.json`,
+      `https://rn-shop-guide-fb159-default-rtdb.asia-southeast1.firebasedatabase.app/products/${productId}.json?auth=${token}`,
       {
         method: 'DELETE',
       }
@@ -58,10 +65,12 @@ export const deleteProduct = (productId) => {
 };
 
 export const createProduct = (title, description, imageUrl, price) => {
-  return async (dispatch) => {
+  return async (dispatch, getState) => {
+    const token = getState().auth.token;
+    const userId = getState().auth.userId;
     // any async code you want!
     const response = await fetch(
-      'https://rn-shop-guide-fb159-default-rtdb.asia-southeast1.firebasedatabase.app/products.json',
+      `https://rn-shop-guide-fb159-default-rtdb.asia-southeast1.firebasedatabase.app/products.json?auth=${token}`,
       {
         method: 'POST',
         headers: {
@@ -72,6 +81,7 @@ export const createProduct = (title, description, imageUrl, price) => {
           description,
           imageUrl,
           price,
+          ownerId: userId,
         }),
       }
     );
@@ -88,15 +98,17 @@ export const createProduct = (title, description, imageUrl, price) => {
         description,
         imageUrl,
         price,
+        ownerId: userId,
       },
     });
   };
 };
 
 export const updateProduct = (id, title, description, imageUrl) => {
-  return async (dispatch) => {
+  return async (dispatch, getState) => {
+    const token = getState().auth.token;
     const response = await fetch(
-      `https://rn-shop-guide-fb159-default-rtdb.asia-southeast1.firebasedatabase.app/products/${id}.json`,
+      `https://rn-shop-guide-fb159-default-rtdb.asia-southeast1.firebasedatabase.app/products/${id}.json?auth=${token}`,
       {
         method: 'PATCH',
         headers: {
