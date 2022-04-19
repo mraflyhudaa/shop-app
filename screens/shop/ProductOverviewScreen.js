@@ -46,8 +46,10 @@ const ProductOverviewScreen = ({navigation}) => {
 
   useEffect(() => {
     const focusSub = navigation.addListener('focus', loadProducts);
-    return focusSub;
-  }, [navigation, loadProducts]);
+    return () => {
+      focusSub();
+    };
+  }, [loadProducts]);
 
   const selectItemHandler = (id, title) => {
     navigation.navigate('ProductDetail', {
