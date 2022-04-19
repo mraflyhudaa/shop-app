@@ -7,18 +7,12 @@ import AppLoading from 'expo-app-loading';
 import * as Font from 'expo-font';
 import {composeWithDevTools} from '@redux-devtools/extension';
 import thunk from 'redux-thunk';
-import {NavigationContainer} from '@react-navigation/native';
 
 import productsReducer from './store/reducers/products';
 import cartReducer from './store/reducers/cart';
 import ordersReducer from './store/reducers/orders';
 import authReducer from './store/reducers/auth';
-import {
-  ShopNavigator,
-  AuthNavigator,
-  MainNavigator,
-  ShopStack,
-} from './navigation/ShopNavigator';
+import AppNavigator from './navigation/AppNavigator';
 
 const rootReducer = combineReducers({
   products: productsReducer,
@@ -55,9 +49,7 @@ export default function App() {
   }
   return (
     <Provider store={store}>
-      <AuthNavigator />
-      {/* <ShopNavigator /> */}
-      {/* <MainNavigator /> */}
+      <AppNavigator />
       <StatusBar />
     </Provider>
   );
